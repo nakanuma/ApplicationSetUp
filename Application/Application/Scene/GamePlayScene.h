@@ -43,5 +43,7 @@ private:
 	std::unique_ptr<Object3D> object_;
 
 	uint32_t dummy_;
+
+	uint32_t dummy2_;
 };
 
