@@ -1,11 +1,11 @@
-#include "GamePlayScene.h" 
+﻿#include "TestScene.h"
 #include "ImguiWrapper.h" 
 #include "DirectXBase.h"
+#include "RTVManager.h"
 #include "SRVManager.h"
 #include "SpriteCommon.h"
 
-void GamePlayScene::Initialize()
-{
+void TestScene::Initialize() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// カメラのインスタンスを生成
@@ -30,10 +30,13 @@ void GamePlayScene::Initialize()
 	lightManager = LightManager::GetInstance();
 	lightManager->Initialize();
 
+	// レンダーテクスチャ生成
+	renderTexture_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
+
 	///
-	///	↓ ゲームシーン用 
-	///	
-	
+	///	↓ ゲームシーン用
+	///
+
 	// Texture読み込み
 	uint32_t uvCheckerGH = TextureManager::Load("resources/Images/uvChecker.png", dxBase->GetDevice());
 
@@ -47,23 +50,20 @@ void GamePlayScene::Initialize()
 	object_->transform_.rotate = {0.0f, 3.14f, 0.0f};
 }
 
-void GamePlayScene::Finalize()
-{
+void TestScene::Finalize() {}
+
+void TestScene::Update() { 
+	object_->UpdateMatrix(); 
 }
 
-void GamePlayScene::Update() { 
-	object_->UpdateMatrix();
-}
-
-void GamePlayScene::Draw()
-{
+void TestScene::Draw() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 	SRVManager* srvManager = SRVManager::GetInstance();
 
 	// 描画前処理
 	dxBase->PreDraw();
 	// 描画用のDescriptorHeapの設定
-	ID3D12DescriptorHeap* descriptorHeaps[] = { srvManager->descriptorHeap.heap_.Get() };
+	ID3D12DescriptorHeap* descriptorHeaps[] = {srvManager->descriptorHeap.heap_.Get()};
 	dxBase->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
 	// ImGuiのフレーム開始処理
 	ImguiWrapper::NewFrame();
@@ -72,31 +72,34 @@ void GamePlayScene::Draw()
 	// ライトの定数バッファを設定
 	lightManager->TransferContantBuffer();
 
+	// レンダーターゲットをレンダーテクスチャにセット
+	RTVManager::SetRenderTarget(renderTexture_);
+	RTVManager::ClearRTV(renderTexture_);
+
 	///
 	///	↓ ここから3Dオブジェクトの描画コマンド
-	/// 
+	///
 
 	// オブジェクトの描画
 	object_->Draw();
 
 	///
 	///	↑ ここまで3Dオブジェクトの描画コマンド
-	/// 
+	///
 
 	// Spriteの描画準備。全ての描画に共通のグラフィックスコマンドを積む
 	spriteCommon->PreDraw();
 
 	///
 	/// ↓ ここからスプライトの描画コマンド
-	/// 
+	///
 
 	///
 	/// ↑ ここまでスプライトの描画コマンド
-	/// 
-	
+	///
 
 #ifdef _DEBUG
-	
+
 #endif // _DEBUG
 
 	ImGui::Begin("window");
@@ -105,6 +108,11 @@ void GamePlayScene::Draw()
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 
 	ImGui::End();
+
+	// レンダーテクスチャをImGuiWindowに描画
+	ImGuiUtil::ImageWindow("Scene", renderTexture_);
+	// レンダーテクスチャをバックバッファに描画
+	RTVManager::SetRTtoBB();
 
 	// ImGuiの内部コマンドを生成する
 	ImguiWrapper::Render(dxBase->GetCommandList());
