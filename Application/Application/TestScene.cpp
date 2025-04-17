@@ -5,11 +5,13 @@
 #include "SRVManager.h"
 #include "SpriteCommon.h"
 
+#include <numbers>
+
 void TestScene::Initialize() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// カメラのインスタンスを生成
-	camera = std::make_unique<Camera>(Float3{0.0f, 10.0f, -25.0f}, Float3{0.3f, 0.0f, 0.0f}, 0.45f);
+	camera = std::make_unique<Camera>(Float3{0.0f, 0.0f, -10.0f}, Float3{0.0f, 0.0f, 0.0f}, 0.45f);
 	Camera::Set(camera.get()); // 現在のカメラをセット
 
 	// SpriteCommonの生成と初期化
@@ -39,15 +41,17 @@ void TestScene::Initialize() {
 	///
 
 	// Texture読み込み
-	uint32_t texture = TextureManager::Load("resources/Images/grass.png", dxBase->GetDevice());
+	uint32_t texture = TextureManager::Load("resources/Images/gradationLine.png", dxBase->GetDevice());
 
 	// モデルの読み込みとテクスチャの設定
-	model_ = ModelManager::LoadModelFile("resources/Models", "terrain.obj", dxBase->GetDevice());
+	/*model_ = ModelManager::LoadModelFile("resources/Models", "terrain.obj", dxBase->GetDevice());*/
+	model_ = ModelManager::CreateRingModel(dxBase->GetDevice());
 	model_.material.textureHandle = texture;
 
 	// オブジェクトの生成とモデル設定
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
+	object_->transform_.rotate = {-std::numbers::pi_v<float> / 2.0f, 0.0f, 0.0f};
 
 	/*-------------------------------*/
 
@@ -124,6 +128,7 @@ void TestScene::Draw() {
 	ImGui::Begin("Camera");
 
 	ImGui::DragFloat3("Translate", &camera->transform.translate.x, 0.01f);
+	ImGui::DragFloat3("Rotate", &camera->transform.rotate.x, 0.01f);
 
 	ImGui::End();
 
@@ -133,6 +138,10 @@ void TestScene::Draw() {
 	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 	ImGui::DragFloat3("scale", &object_->transform_.scale.x, 0.01f);
+
+	static float scaleU = 1.0f;
+	ImGui::DragFloat("scaleU", &scaleU, 0.01f);
+	object_->ScaleUV(scaleU);
 
 	ImGui::End();
 
