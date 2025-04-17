@@ -9,6 +9,8 @@
 #include "SoundManager.h"
 #include "Input.h"
 #include "LightManager.h"
+#include "ParticleManager.h"
+#include "ParticleEmitter.h"
 
 class TestScene : public BaseScene {
 public:
@@ -26,6 +28,7 @@ private:
 	std::unique_ptr<SoundManager> soundManager = nullptr;
 	Input* input = nullptr;
 	LightManager* lightManager = nullptr;
+	std::unique_ptr<ParticleManager> particleManager_ = nullptr;
 
 	///
 	/// ↓ ゲームシーン用
@@ -36,6 +39,10 @@ private:
 	// 3Dオブジェクト
 	std::unique_ptr<Object3D> object_;
 
-	// レンダーテクスチャ
-	uint32_t renderTexture_;
+	// particleEmitter
+	std::unique_ptr<ParticleEmitter> particleEmitter_;
+	// パーティクル用モデル
+	ModelManager::ModelData modelPlane_;
+	// パーティクル用テクスチャ
+	uint32_t textureParticle_;
 };

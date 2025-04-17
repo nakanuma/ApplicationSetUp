@@ -9,7 +9,7 @@ void TestScene::Initialize() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// カメラのインスタンスを生成
-	camera = std::make_unique<Camera>(Float3{0.0f, 15.0f, -40.0f}, Float3{0.3f, 0.0f, 0.0f}, 0.45f);
+	camera = std::make_unique<Camera>(Float3{0.0f, 10.0f, -25.0f}, Float3{0.3f, 0.0f, 0.0f}, 0.45f);
 	Camera::Set(camera.get()); // 現在のカメラをセット
 
 	// SpriteCommonの生成と初期化
@@ -30,30 +30,52 @@ void TestScene::Initialize() {
 	lightManager = LightManager::GetInstance();
 	lightManager->Initialize();
 
-	// レンダーテクスチャ生成
-	renderTexture_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
+	// ParticleManagerの初期化
+	particleManager_ = std::make_unique<ParticleManager>();
+	particleManager_->Initialize(dxBase, SRVManager::GetInstance());
 
 	///
 	///	↓ ゲームシーン用
 	///
 
 	// Texture読み込み
-	uint32_t uvCheckerGH = TextureManager::Load("resources/Images/uvChecker.png", dxBase->GetDevice());
+	uint32_t texture = TextureManager::Load("resources/Images/grass.png", dxBase->GetDevice());
 
 	// モデルの読み込みとテクスチャの設定
-	model_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	model_.material.textureHandle = uvCheckerGH;
+	model_ = ModelManager::LoadModelFile("resources/Models", "terrain.obj", dxBase->GetDevice());
+	model_.material.textureHandle = texture;
 
 	// オブジェクトの生成とモデル設定
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
-	object_->transform_.rotate = {0.0f, 3.14f, 0.0f};
+
+	/*-------------------------------*/
+
+	// パーティクル用のテクスチャとモデル読み込み
+	textureParticle_ = TextureManager::Load("resources/Images/circle2.png", dxBase->GetDevice());
+
+	modelPlane_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
+	modelPlane_.material.textureHandle = textureParticle_;
+
+	// particleEmitterの生成
+	particleEmitter_ = std::make_unique<ParticleEmitter>(*particleManager_);
+	particleEmitter_->transform.translate = {0.0f, 8.0f, 8.0f};
+
+	// パーティクルグループを作成
+	particleManager_->CreateParticleGroup("particle");
+	particleManager_->SetModel("particle", &modelPlane_);
+	particleManager_->SetTexture("particle", textureParticle_);
 }
 
 void TestScene::Finalize() {}
 
 void TestScene::Update() { 
 	object_->UpdateMatrix(); 
+
+	// パーティクルの更新
+	particleManager_->Update();
+
+	particleEmitter_->Update("particle", false); // 自動発生しないように
 }
 
 void TestScene::Draw() {
@@ -72,16 +94,15 @@ void TestScene::Draw() {
 	// ライトの定数バッファを設定
 	lightManager->TransferContantBuffer();
 
-	// レンダーターゲットをレンダーテクスチャにセット
-	RTVManager::SetRenderTarget(renderTexture_);
-	RTVManager::ClearRTV(renderTexture_);
-
 	///
 	///	↓ ここから3Dオブジェクトの描画コマンド
 	///
 
 	// オブジェクトの描画
 	object_->Draw();
+
+	// パーティクル描画
+	particleManager_->Draw();
 
 	///
 	///	↑ ここまで3Dオブジェクトの描画コマンド
@@ -99,20 +120,33 @@ void TestScene::Draw() {
 	///
 
 #ifdef _DEBUG
+	// カメラ //
+	ImGui::Begin("Camera");
 
-#endif // _DEBUG
-
-	ImGui::Begin("window");
-
-	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
-	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
+	ImGui::DragFloat3("Translate", &camera->transform.translate.x, 0.01f);
 
 	ImGui::End();
 
-	// レンダーテクスチャをImGuiWindowに描画
-	ImGuiUtil::ImageWindow("Scene", renderTexture_);
-	// レンダーテクスチャをバックバッファに描画
-	RTVManager::SetRTtoBB();
+	// オブジェクト //
+	ImGui::Begin("object");
+
+	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
+	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
+	ImGui::DragFloat3("scale", &object_->transform_.scale.x, 0.01f);
+
+	ImGui::End();
+
+	// パーティクル //
+	ImGui::Begin("particleEmitter");
+
+	ImGui::DragFloat3("Transform", &particleEmitter_->transform.translate.x, 0.01f);
+
+	if (ImGui::Button("Emit")) {
+		particleEmitter_->Emit("particle");
+	}
+
+	ImGui::End();
+#endif // _DEBUG
 
 	// ImGuiの内部コマンドを生成する
 	ImguiWrapper::Render(dxBase->GetCommandList());
