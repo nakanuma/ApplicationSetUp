@@ -14,6 +14,10 @@ void TestScene::Initialize() {
 	camera = std::make_unique<Camera>(Float3{0.0f, 0.0f, -10.0f}, Float3{0.0f, 0.0f, 0.0f}, 0.45f);
 	Camera::Set(camera.get()); // 現在のカメラをセット
 
+	// デバッグカメラの生成と初期化
+	debugCamera = std::make_unique<DebugCamera>();
+	debugCamera->Initialize();
+
 	// SpriteCommonの生成と初期化
 	spriteCommon = std::make_unique<SpriteCommon>();
 	spriteCommon->Initialize(DirectXBase::GetInstance());
@@ -44,7 +48,7 @@ void TestScene::Initialize() {
 	uint32_t texture = TextureManager::Load("resources/Images/gradationLine.png", dxBase->GetDevice());
 
 	// モデルの読み込みとテクスチャの設定
-	/*model_ = ModelManager::LoadModelFile("resources/Models", "terrain.obj", dxBase->GetDevice());*/
+	/*model_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());*/
 	model_ = ModelManager::CreateRingModel(dxBase->GetDevice());
 	model_.material.textureHandle = texture;
 
@@ -52,6 +56,7 @@ void TestScene::Initialize() {
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
 	object_->transform_.rotate = {-std::numbers::pi_v<float> / 2.0f, 0.0f, 0.0f};
+	object_->materialCB_.data_->enableLighting = false;
 
 	/*-------------------------------*/
 
@@ -61,25 +66,45 @@ void TestScene::Initialize() {
 	modelPlane_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
 	modelPlane_.material.textureHandle = textureParticle_;
 
+	// エフェクト用のテクスチャとモデル読み込み
+	textureRing_ = TextureManager::Load("resources/Images/gradationLine.png", dxBase->GetDevice());
+
+	modelRing_ = ModelManager::CreateRingModel(dxBase->GetDevice());
+	modelRing_.material.textureHandle = textureRing_;
+
 	// particleEmitterの生成
 	particleEmitter_ = std::make_unique<ParticleEmitter>(*particleManager_);
-	particleEmitter_->transform.translate = {0.0f, 8.0f, 8.0f};
+	particleEmitter_->transform.translate = {0.0f, 0.0f, 0.0f};
+
+	// effectEmitterの生成
+	ringEffectEmitter_ = std::make_unique<ParticleEmitter>(*particleManager_);
+	ringEffectEmitter_->transform.translate = {0.0f, 0.0f, 0.0f};
 
 	// パーティクルグループを作成
 	particleManager_->CreateParticleGroup("particle");
 	particleManager_->SetModel("particle", &modelPlane_);
 	particleManager_->SetTexture("particle", textureParticle_);
+
+	// エフェクトのグループを作成
+	particleManager_->CreateParticleGroup("effect");
+	particleManager_->SetModel("effect", &modelRing_);
+	particleManager_->SetTexture("effect", textureRing_);
 }
 
 void TestScene::Finalize() {}
 
 void TestScene::Update() { 
+	#ifdef _DEBUG // デバッグカメラ
+	DebugCameraUpdate(input);
+	#endif
+
 	object_->UpdateMatrix(); 
 
 	// パーティクルの更新
 	particleManager_->Update();
 
 	particleEmitter_->Update("particle", false); // 自動発生しないように
+	ringEffectEmitter_->Update("effect", false);
 }
 
 void TestScene::Draw() {
@@ -130,6 +155,8 @@ void TestScene::Draw() {
 	ImGui::DragFloat3("Translate", &camera->transform.translate.x, 0.01f);
 	ImGui::DragFloat3("Rotate", &camera->transform.rotate.x, 0.01f);
 
+	ImGui::Checkbox("useDebugCamera", &useDebugCamera);
+
 	ImGui::End();
 
 	// オブジェクト //
@@ -148,10 +175,11 @@ void TestScene::Draw() {
 	// パーティクル //
 	ImGui::Begin("particleEmitter");
 
-	ImGui::DragFloat3("Transform", &particleEmitter_->transform.translate.x, 0.01f);
+	//ImGui::DragFloat3("Transform", &particleEmitter_->transform.translate.x, 0.01f);
 
 	if (ImGui::Button("Emit")) {
 		particleEmitter_->Emit("particle");
+		/*ringEffectEmitter_->Emit("effect");*/
 	}
 
 	ImGui::End();
@@ -163,4 +191,28 @@ void TestScene::Draw() {
 	dxBase->PostDraw();
 	// フレーム終了処理
 	dxBase->EndFrame();
+}
+
+void TestScene::DebugCameraUpdate(Input* input) {
+	// 前回のカメラモード状態を保持
+	static bool prevUseDebugCamera = false;
+
+	// デバッグカメラが有効になった瞬間に通常カメラのTransformを保存
+	if (useDebugCamera && !prevUseDebugCamera) {
+		savedCameraTransform = camera->transform;
+	}
+
+	// デバッグカメラが有効の場合
+	if (useDebugCamera) {
+		// デバッグカメラの更新
+		debugCamera->Update(input);
+		// 通常カメラにデバッグカメラのTransformを適用
+		camera->transform = debugCamera->transform_;
+	} else if (!useDebugCamera && prevUseDebugCamera) {
+		// 通常カメラのTransformを再現
+		camera->transform = savedCameraTransform;
+	}
+
+	// 現在のカメラモードを保存して次のフレームで使う
+	prevUseDebugCamera = useDebugCamera;
 }

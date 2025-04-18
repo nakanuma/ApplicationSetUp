@@ -16,6 +16,9 @@
     <Filter Include="Scene">
       <UniqueIdentifier>{3af91203-2765-4be9-b18f-18c3cf0e6a43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effect">
+      <UniqueIdentifier>{88e7473b-47a3-42c3-840a-7ec30d3f360b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\GamePlayScene.cpp">
@@ -24,8 +27,11 @@
     <ClCompile Include="Scene\TitleScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="TestScene.cpp">
+    <ClCompile Include="TestScene\TestScene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect\RingEffectEmitter.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -35,8 +41,11 @@
     <ClInclude Include="Scene\TitleScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="TestScene.h">
+    <ClInclude Include="TestScene\TestScene.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect\RingEffectEmitter.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

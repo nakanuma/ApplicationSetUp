@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "BaseScene.h"
 #include "Camera.h"
+#include "DebugCamera.h"
 #include "SpriteCommon.h"
 #include "TextureManager.h"
 #include "Sprite.h"
@@ -23,7 +24,15 @@ public:
 	void Draw() override;
 
 private:
+#ifdef _DEBUG                       // デバッグカメラ用
+	bool useDebugCamera = false;    // デバッグカメラが有効か
+	Transform savedCameraTransform; // 通常カメラのTransformを保持
+
+	void DebugCameraUpdate(Input* input);
+#endif
+private:
 	std::unique_ptr<Camera> camera = nullptr;
+	std::unique_ptr<DebugCamera> debugCamera = nullptr;
 	std::unique_ptr<SpriteCommon> spriteCommon = nullptr;
 	std::unique_ptr<SoundManager> soundManager = nullptr;
 	Input* input = nullptr;
@@ -39,10 +48,13 @@ private:
 	// 3Dオブジェクト
 	std::unique_ptr<Object3D> object_;
 
-	// particleEmitter
+	// パーティクル関連
 	std::unique_ptr<ParticleEmitter> particleEmitter_;
-	// パーティクル用モデル
 	ModelManager::ModelData modelPlane_;
-	// パーティクル用テクスチャ
 	uint32_t textureParticle_;
+	
+	// エフェクト関連
+	std::unique_ptr<ParticleEmitter> ringEffectEmitter_;
+	ModelManager::ModelData modelRing_;
+	uint32_t textureRing_;
 };

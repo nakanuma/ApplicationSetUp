@@ -1,0 +1,27 @@
+#pragma once
+
+// Engine
+#include <ParticleEmitter.h>
+#include <ParticleManager.h>
+
+class RingEffectEmitter {
+public:
+	RingEffectEmitter(ParticleManager& manager);
+
+	void Update(std::string name, bool isEmit);
+	void Emit(std::string name);
+
+	Transform transform; //!< エミッタのTransform
+private:
+	ParticleManager* particleManager = nullptr;
+
+	// パーティクルグループコンテナ
+	std::unordered_map<std::string, std::unique_ptr<ParticleManager::ParticleGroup>> particleGroups;
+
+	// Δtを定義
+	const float kDeltaTime = 1.0f / 60.0f;
+
+	uint32_t count;      //!< 発生数
+	float frequency;     //!< 発生頻度
+	float frequencyTime; // !< 頻度用時刻
+};
