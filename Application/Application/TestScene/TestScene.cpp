@@ -11,7 +11,7 @@ void TestScene::Initialize() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// カメラのインスタンスを生成
-	camera = std::make_unique<Camera>(Float3{0.0f, 0.0f, -10.0f}, Float3{0.0f, 0.0f, 0.0f}, 0.45f);
+	camera = std::make_unique<Camera>(Float3{0.0f, 5.0f, -15.0f}, Float3{0.3f, 0.0f, 0.0f}, 0.45f);
 	Camera::Set(camera.get()); // 現在のカメラをセット
 
 	// デバッグカメラの生成と初期化
@@ -46,17 +46,19 @@ void TestScene::Initialize() {
 
 	// Texture読み込み
 	uint32_t texture = TextureManager::Load("resources/Images/gradationLine.png", dxBase->GetDevice());
+	/*uint32_t texture = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());*/
 
 	// モデルの読み込みとテクスチャの設定
 	/*model_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());*/
-	model_ = ModelManager::CreateRingModel(dxBase->GetDevice());
+	model_ = ModelManager::CreateCylinderModel(dxBase->GetDevice());
 	model_.material.textureHandle = texture;
 
 	// オブジェクトの生成とモデル設定
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
-	object_->transform_.rotate = {-std::numbers::pi_v<float> / 2.0f, 0.0f, 0.0f};
+	/*object_->transform_.rotate = {-std::numbers::pi_v<float> / 2.0f, 0.0f, 0.0f};*/
 	object_->materialCB_.data_->enableLighting = false;
+	object_->materialCB_.data_->color = {1.0f, 0.0f, 0.0f, 1.0f};
 
 	/*-------------------------------*/
 
@@ -127,8 +129,12 @@ void TestScene::Draw() {
 	///	↓ ここから3Dオブジェクトの描画コマンド
 	///
 
+	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateNoCulling());
+
 	// オブジェクトの描画
 	object_->Draw();
+
+	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 
 	// パーティクル描画
 	particleManager_->Draw();
@@ -169,6 +175,12 @@ void TestScene::Draw() {
 	static float scaleU = 1.0f;
 	ImGui::DragFloat("scaleU", &scaleU, 0.01f);
 	object_->ScaleUV(scaleU);
+
+	static float speedU = 0.0f;
+	speedU += 0.001f;
+	ImGui::DragFloat("speedU", &speedU, 0.01f);
+	Matrix uvTranslateMatrix = Matrix::Translation({speedU, 0.0f, 0.0f});
+	object_->materialCB_.data_->uvTransform = uvTranslateMatrix;
 
 	ImGui::End();
 
