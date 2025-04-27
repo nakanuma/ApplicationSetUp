@@ -70,19 +70,19 @@ void TestScene::Initialize() {
 	vertexDataSprite = nullptr;
 	vertexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
 	// 左下
-	vertexDataSprite[0].position = {0.0f, 360.0f, 0.0f, 1.0f};
+	vertexDataSprite[0].position = {-1.0f, -1.0f, 0.0f, 1.0f};
 	vertexDataSprite[0].texcoord = {0.0f, 1.0f};
 	vertexDataSprite[0].normal = {0.0f, 0.0f, -1.0f};
 	// 左上
-	vertexDataSprite[1].position = {0.0f, 0.0f, 0.0f, 1.0f};
+	vertexDataSprite[1].position = { -1.0f, 1.0f, 0.0f, 1.0f};
 	vertexDataSprite[1].texcoord = {0.0f, 0.0f};
 	vertexDataSprite[1].normal = {0.0f, 0.0f, -1.0f};
 	// 右下
-	vertexDataSprite[2].position = {640.0f, 360.0f, 0.0f, 1.0f};
+	vertexDataSprite[2].position = {1.0f, -1.0f, 0.0f, 1.0f};
 	vertexDataSprite[2].texcoord = {1.0f, 1.0f};
 	vertexDataSprite[2].normal = {0.0f, 0.0f, -1.0f};
 	// 右上
-	vertexDataSprite[3].position = {640.0f, 0.0f, 0.0f, 1.0f};
+	vertexDataSprite[3].position = {1.0f, 1.0f, 0.0f, 1.0f};
 	vertexDataSprite[3].texcoord = {1.0f, 0.0f};
 	vertexDataSprite[3].normal = {0.0f, 0.0f, -1.0f};
 
@@ -250,6 +250,8 @@ void TestScene::Draw() {
 
 	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
+
+	ImGui::ColorEdit3("outlineColor", &outlineMaterial.data_->color.x);
 
 	ImGui::End();
 #endif // _DEBUG
