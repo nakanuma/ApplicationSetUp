@@ -44,53 +44,33 @@ void TestScene::Initialize() {
 	///	↓ ゲームシーン用
 	///
 
+	/* 通常オブジェクト */
+
 	// Texture読み込み
-	uint32_t texture = TextureManager::Load("resources/Images/gradationLine.png", dxBase->GetDevice());
-	/*uint32_t texture = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());*/
+	uint32_t texture = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
 
 	// モデルの読み込みとテクスチャの設定
-	/*model_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());*/
-	model_ = ModelManager::CreateCylinderModel(dxBase->GetDevice());
+	model_ = ModelManager::LoadModelFile("resources/Models", "Cube.obj", dxBase->GetDevice());
 	model_.material.textureHandle = texture;
 
 	// オブジェクトの生成とモデル設定
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
-	/*object_->transform_.rotate = {-std::numbers::pi_v<float> / 2.0f, 0.0f, 0.0f};*/
-	object_->materialCB_.data_->enableLighting = false;
 	object_->materialCB_.data_->color = {1.0f, 0.0f, 0.0f, 1.0f};
 
-	/*-------------------------------*/
+	/* Skybox */
 
-	// パーティクル用のテクスチャとモデル読み込み
-	textureParticle_ = TextureManager::Load("resources/Images/circle2.png", dxBase->GetDevice());
+	// ddsファイルの読み込み
+	uint32_t dds = TextureManager::Load("resources/Images/rostock_laage_airport_4k.dds", dxBase->GetDevice());
 
-	modelPlane_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	modelPlane_.material.textureHandle = textureParticle_;
+	// モデルの読み込みとテクスチャの設定
+	modelSkybox_ = ModelManager::CreateSkyBoxModel(dxBase->GetDevice());
+	modelSkybox_.material.textureHandle = dds;
 
-	// エフェクト用のテクスチャとモデル読み込み
-	textureRing_ = TextureManager::Load("resources/Images/gradationLine.png", dxBase->GetDevice());
-
-	modelRing_ = ModelManager::CreateRingModel(dxBase->GetDevice());
-	modelRing_.material.textureHandle = textureRing_;
-
-	// particleEmitterの生成
-	particleEmitter_ = std::make_unique<ParticleEmitter>(*particleManager_);
-	particleEmitter_->transform.translate = {0.0f, 0.0f, 0.0f};
-
-	// effectEmitterの生成
-	ringEffectEmitter_ = std::make_unique<ParticleEmitter>(*particleManager_);
-	ringEffectEmitter_->transform.translate = {0.0f, 0.0f, 0.0f};
-
-	// パーティクルグループを作成
-	particleManager_->CreateParticleGroup("particle");
-	particleManager_->SetModel("particle", &modelPlane_);
-	particleManager_->SetTexture("particle", textureParticle_);
-
-	// エフェクトのグループを作成
-	particleManager_->CreateParticleGroup("effect");
-	particleManager_->SetModel("effect", &modelRing_);
-	particleManager_->SetTexture("effect", textureRing_);
+	// オブジェクトの生成とモデル設定
+	objectSkybox_ = std::make_unique<Object3D>();
+	objectSkybox_->model_ = &modelSkybox_;
+	objectSkybox_->materialCB_.data_->enableLighting = false;
 }
 
 void TestScene::Finalize() {}
@@ -101,12 +81,10 @@ void TestScene::Update() {
 	#endif
 
 	object_->UpdateMatrix(); 
+	objectSkybox_->UpdateMatrix();
 
 	// パーティクルの更新
 	particleManager_->Update();
-
-	particleEmitter_->Update("particle", false); // 自動発生しないように
-	ringEffectEmitter_->Update("effect", false);
 }
 
 void TestScene::Draw() {
@@ -129,11 +107,12 @@ void TestScene::Draw() {
 	///	↓ ここから3Dオブジェクトの描画コマンド
 	///
 
-	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateNoCulling());
-
 	// オブジェクトの描画
 	object_->Draw();
 
+	// Skyboxの描画（Skybox用PSOに変更）
+	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkybox());
+	objectSkybox_->Draw();
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 
 	// パーティクル描画
@@ -171,28 +150,6 @@ void TestScene::Draw() {
 	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 	ImGui::DragFloat3("scale", &object_->transform_.scale.x, 0.01f);
-
-	static float scaleU = 1.0f;
-	ImGui::DragFloat("scaleU", &scaleU, 0.01f);
-	object_->ScaleUV(scaleU);
-
-	static float speedU = 0.0f;
-	speedU += 0.001f;
-	ImGui::DragFloat("speedU", &speedU, 0.01f);
-	Matrix uvTranslateMatrix = Matrix::Translation({speedU, 0.0f, 0.0f});
-	object_->materialCB_.data_->uvTransform = uvTranslateMatrix;
-
-	ImGui::End();
-
-	// パーティクル //
-	ImGui::Begin("particleEmitter");
-
-	//ImGui::DragFloat3("Transform", &particleEmitter_->transform.translate.x, 0.01f);
-
-	if (ImGui::Button("Emit")) {
-		particleEmitter_->Emit("particle");
-		/*ringEffectEmitter_->Emit("effect");*/
-	}
 
 	ImGui::End();
 #endif // _DEBUG

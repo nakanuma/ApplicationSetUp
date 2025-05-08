@@ -48,13 +48,8 @@ private:
 	// 3Dオブジェクト
 	std::unique_ptr<Object3D> object_;
 
-	// パーティクル関連
-	std::unique_ptr<ParticleEmitter> particleEmitter_;
-	ModelManager::ModelData modelPlane_;
-	uint32_t textureParticle_;
-	
-	// エフェクト関連
-	std::unique_ptr<ParticleEmitter> ringEffectEmitter_;
-	ModelManager::ModelData modelRing_;
-	uint32_t textureRing_;
+	// モデルデータ（Skybox）
+	ModelManager::ModelData modelSkybox_;
+	// 3Dオブジェクト（Skybox）
+	std::unique_ptr<Object3D> objectSkybox_;
 };

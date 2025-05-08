@@ -48,4 +48,11 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Skybox.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Skybox.VS.hlsl" />
+    <FxCompile Include="Skybox.PS.hlsl" />
+  </ItemGroup>
 </Project>
