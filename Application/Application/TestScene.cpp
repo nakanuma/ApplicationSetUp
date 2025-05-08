@@ -248,6 +248,8 @@ void TestScene::Draw() {
 #ifdef _DEBUG
 	ImGui::Begin("window");
 
+	ImGui::Text("fps : %.2f", ImGui::GetIO().Framerate);
+
 	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 
