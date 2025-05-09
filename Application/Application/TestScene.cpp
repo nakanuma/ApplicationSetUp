@@ -30,9 +30,6 @@ void TestScene::Initialize() {
 	lightManager = LightManager::GetInstance();
 	lightManager->Initialize();
 
-	// レンダーテクスチャ生成
-	renderTexture_ = RTVManager::CreateRenderTargetTexture(Window::GetWidth(), Window::GetHeight());
-
 	///
 	///	↓ ゲームシーン用
 	///
@@ -72,10 +69,6 @@ void TestScene::Draw() {
 	// ライトの定数バッファを設定
 	lightManager->TransferContantBuffer();
 
-	// レンダーターゲットをレンダーテクスチャにセット
-	RTVManager::SetRenderTarget(renderTexture_);
-	RTVManager::ClearRTV(renderTexture_);
-
 	///
 	///	↓ ここから3Dオブジェクトの描画コマンド
 	///
@@ -108,11 +101,6 @@ void TestScene::Draw() {
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 
 	ImGui::End();
-
-	// レンダーテクスチャをImGuiWindowに描画
-	ImGuiUtil::ImageWindow("Scene", renderTexture_);
-	// レンダーテクスチャをバックバッファに描画
-	RTVManager::SetRTtoBB();
 
 	// ImGuiの内部コマンドを生成する
 	ImguiWrapper::Render(dxBase->GetCommandList());

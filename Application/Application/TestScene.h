@@ -35,7 +35,4 @@ private:
 	ModelManager::ModelData model_;
 	// 3Dオブジェクト
 	std::unique_ptr<Object3D> object_;
-
-	// レンダーテクスチャ
-	uint32_t renderTexture_;
 };
