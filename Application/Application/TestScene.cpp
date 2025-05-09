@@ -45,6 +45,11 @@ void TestScene::Initialize() {
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
 	object_->transform_.rotate = {0.0f, 3.14f, 0.0f};
+
+	// ローダー生成
+	loader_ = std::make_unique<Loader>();
+	loader_->Initialize();
+
 }
 
 void TestScene::Finalize() {}

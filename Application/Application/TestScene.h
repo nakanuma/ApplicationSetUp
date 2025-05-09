@@ -10,6 +10,9 @@
 #include "Input.h"
 #include "LightManager.h"
 
+// Application
+#include <Loader.h>
+
 class TestScene : public BaseScene {
 public:
 	void Initialize() override;
@@ -35,4 +38,6 @@ private:
 	ModelManager::ModelData model_;
 	// 3Dオブジェクト
 	std::unique_ptr<Object3D> object_;
+
+	std::unique_ptr<Loader> loader_;
 };
