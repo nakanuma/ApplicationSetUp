@@ -45,6 +45,10 @@ private:
 
 	// モデルデータ
 	ModelManager::ModelData model_;
+	// アニメーション
+	ModelManager::Animation animation_;
+	// アニメーション時間
+	float animationTime_ = 0.0f;
 	// 3Dオブジェクト
 	std::unique_ptr<Object3D> object_;
 

@@ -44,19 +44,21 @@ void TestScene::Initialize() {
 	///	↓ ゲームシーン用
 	///
 
-	/* 通常オブジェクト */
+	/* アニメーションオブジェクト */
 
 	// Texture読み込み
-	uint32_t texture = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
+	uint32_t texture = TextureManager::Load("resources/Images/AnimatedCube_BaseColor.png", dxBase->GetDevice());
 
 	// モデルの読み込みとテクスチャの設定
-	model_ = ModelManager::LoadModelFile("resources/Models", "Cube.obj", dxBase->GetDevice());
+	model_ = ModelManager::LoadModelFile("resources/Models", "AnimatedCube.gltf", dxBase->GetDevice());
 	model_.material.textureHandle = texture;
+
+	// アニメーション読み込み
+	animation_ = ModelManager::LoadAnimation("resources/Models", "AnimatedCube.gltf");
 
 	// オブジェクトの生成とモデル設定
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
-	object_->materialCB_.data_->color = {1.0f, 0.0f, 0.0f, 1.0f};
 
 	/* Skybox */
 
@@ -81,7 +83,27 @@ void TestScene::Update() {
 	DebugCameraUpdate(input);
 	#endif
 
+#pragma region アニメーション適用
 	object_->UpdateMatrix(); 
+
+	// オブジェクトとカメラの行列を取得
+	Matrix worldMatrix = object_->transform_.MakeAffineMatrix();
+	Matrix viewProjectionMatrix = Camera::GetCurrent()->GetViewProjectionMatrix();
+
+	animationTime_ += 1.0f / 60.0f; // 時間を進める
+	animationTime_ = std::fmod(animationTime_, animation_.duration);
+	ModelManager::NodeAnimation& rootNodeAnimation = animation_.nodeAnimations[model_.rootNode.name]; // rootNodeのAnimationを取得
+	Float3 translate = ModelManager::CalculateValue(rootNodeAnimation.translate, animationTime_);     // 指定時刻の値を取得
+	Quaternion rotate = ModelManager::CalculateValue(rootNodeAnimation.rotate, animationTime_);
+	Float3 scale = ModelManager::CalculateValue(rootNodeAnimation.scale, animationTime_);
+	Transform transform = {scale, Float3{rotate.x, rotate.y, rotate.z}, translate}; // 一旦Transformにする
+	Matrix localMatrix = transform.MakeAffineMatrix();
+
+	// RootのMatrixを適用
+	object_->wvpCB_.data_->WVP = localMatrix * worldMatrix * viewProjectionMatrix;
+	object_->wvpCB_.data_->World = localMatrix * worldMatrix;
+#pragma endregion
+
 	objectSkybox_->UpdateMatrix();
 
 	// パーティクルの更新
