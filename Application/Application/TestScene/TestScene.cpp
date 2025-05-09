@@ -71,6 +71,7 @@ void TestScene::Initialize() {
 	objectSkybox_ = std::make_unique<Object3D>();
 	objectSkybox_->model_ = &modelSkybox_;
 	objectSkybox_->materialCB_.data_->enableLighting = false;
+	objectSkybox_->transform_.scale = {1000.0f, 1000.0f, 1000.0f};
 }
 
 void TestScene::Finalize() {}
