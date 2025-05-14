@@ -75,22 +75,10 @@ void TestScene::Initialize() {
 
 	// アニメーション読み込み
 	animation_ = ModelManager::LoadAnimation("resources/Models/Human", "walk.gltf");
-
 	// スケルトン作成
 	skeleton_ = ModelManager::CreateSkeleton(modelHuman_.rootNode);
-
-
-
-	// モデル読み込み
-	modelSphere_ = ModelManager::LoadModelFile("resources/Models/", "sphere.obj", dxBase->GetDevice());
-	modelSphere_.material.textureHandle = whiteGH;
-
-	// Jointの数だけ球体オブジェクト生成
-	for (size_t i = 0; i < skeleton_.joints.size(); ++i) {
-		auto sphere = std::make_unique<Object3D>();
-		sphere->model_ = &modelSphere_;
-		jointSpheres_.push_back(std::move(sphere));
-	}
+	// スキンクラスター作成
+	skinCluster_ = ModelManager::CreateSkinCluster(dxBase->GetDevice(), skeleton_, modelHuman_);
 }
 
 void TestScene::Finalize() {}
@@ -106,10 +94,15 @@ void TestScene::Update() {
 	// 3Dオブジェクト更新
 	objectHuman_->UpdateMatrix();
 
+	// アニメーション再生用タイマーを進める
 	animationTime_ += 1.0f / 60.0f;
 	animationTime_ = std::fmod(animationTime_, animation_.duration);
+	// アニメーションの更新を行って、骨ごとのLocal情報を更新
 	ModelManager::ApplyAnimation(skeleton_, animation_, animationTime_);
+	// 現在の骨ごとのLocal情報を基にSkeletonSpaceの情報を更新
 	ModelManager::Update(skeleton_);
+	// SkeletonSpaceの情報を基に、SkinClusterのMatrixPaletteを更新
+	ModelManager::Update(skinCluster_, skeleton_);
 
 	// パーティクルの更新
 	particleManager_->Update();
@@ -140,23 +133,10 @@ void TestScene::Draw() {
 	objectSkybox_->Draw();
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 
-	// Object描画
-	objectHuman_->Draw();
-
-	// Jointデバッグ用球体の描画
-	for (size_t i = 0; i < jointSpheres_.size(); ++i) {
-		const auto& joint = skeleton_.joints[i];
-
-		Matrix jointWorldMatrix = joint.skeletonSpaceMatrix * objectHuman_->transform_.MakeAffineMatrix();
-
-		Matrix sphereScaleMatrix = Matrix::Scaling(jointSpheres_[i]->transform_.scale);
-		Matrix sphereWorldMatrix = sphereScaleMatrix * jointWorldMatrix;
-
-		jointSpheres_[i]->wvpCB_.data_->WVP = sphereWorldMatrix * Camera::GetCurrent()->GetViewProjectionMatrix();
-		jointSpheres_[i]->wvpCB_.data_->World = sphereWorldMatrix;
-		jointSpheres_[i]->Draw();
-	}
-
+	// Object描画（Skinning用PSOに変更）
+	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkinning());
+	objectHuman_->Draw(skinCluster_);
+	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
 
 	// パーティクル描画
 	particleManager_->Draw();

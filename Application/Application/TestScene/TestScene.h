@@ -60,11 +60,8 @@ private:
 	ModelManager::Animation animation_;
 	// スケルトン
 	ModelManager::Skeleton skeleton_;
+	// スキンクラスター
+	ModelManager::SkinCluster skinCluster_;
 	// アニメーション時間
 	float animationTime_ = 0.0f;
-
-	// デバッグ用球体モデル
-	ModelManager::ModelData modelSphere_;
-	// デバッグ用球体オブジェクト
-	std::vector<std::unique_ptr<Object3D>> jointSpheres_; 
 };
