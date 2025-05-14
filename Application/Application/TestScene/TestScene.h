@@ -66,5 +66,5 @@ private:
 	// デバッグ用球体モデル
 	ModelManager::ModelData modelSphere_;
 	// デバッグ用球体オブジェクト
-	std::vector<std::unique_ptr<Object3D>> jointSpheres_;
+	std::vector<std::unique_ptr<Object3D>> jointSpheres_; 
 };
