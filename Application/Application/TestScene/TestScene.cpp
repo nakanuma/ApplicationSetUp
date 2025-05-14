@@ -11,7 +11,7 @@ void TestScene::Initialize() {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// カメラのインスタンスを生成
-	camera = std::make_unique<Camera>(Float3{0.0f, 5.0f, -15.0f}, Float3{0.3f, 0.0f, 0.0f}, 0.45f);
+	camera = std::make_unique<Camera>(Float3{0.0f, 1.0f, -5.0f}, Float3{0.0f, 0.0f, 0.0f}, 0.45f);
 	Camera::Set(camera.get()); // 現在のカメラをセット
 
 	// デバッグカメラの生成と初期化
@@ -44,22 +44,6 @@ void TestScene::Initialize() {
 	///	↓ ゲームシーン用
 	///
 
-	/* アニメーションオブジェクト */
-
-	// Texture読み込み
-	uint32_t texture = TextureManager::Load("resources/Images/AnimatedCube_BaseColor.png", dxBase->GetDevice());
-
-	// モデルの読み込みとテクスチャの設定
-	model_ = ModelManager::LoadModelFile("resources/Models", "AnimatedCube.gltf", dxBase->GetDevice());
-	model_.material.textureHandle = texture;
-
-	// アニメーション読み込み
-	animation_ = ModelManager::LoadAnimation("resources/Models", "AnimatedCube.gltf");
-
-	// オブジェクトの生成とモデル設定
-	object_ = std::make_unique<Object3D>();
-	object_->model_ = &model_;
-
 	/* Skybox */
 
 	// ddsファイルの読み込み
@@ -72,8 +56,41 @@ void TestScene::Initialize() {
 	// オブジェクトの生成とモデル設定
 	objectSkybox_ = std::make_unique<Object3D>();
 	objectSkybox_->model_ = &modelSkybox_;
-	objectSkybox_->materialCB_.data_->enableLighting = false;
 	objectSkybox_->transform_.scale = {1000.0f, 1000.0f, 1000.0f};
+
+
+	/* Animation */
+
+	// Texture読み込み
+	uint32_t whiteGH = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
+
+	// モデル読み込み
+	modelHuman_ = ModelManager::LoadModelFile("resources/Models/human", "walk.gltf", dxBase->GetDevice());
+	modelHuman_.material.textureHandle = whiteGH;
+
+	// オブジェクト生成
+	objectHuman_ = std::make_unique<Object3D>();
+	objectHuman_->model_ = &modelHuman_;
+	objectHuman_->transform_.rotate = {0.0f, std::numbers::pi_v<float>, 0.0f};
+
+	// アニメーション読み込み
+	animation_ = ModelManager::LoadAnimation("resources/Models/Human", "walk.gltf");
+
+	// スケルトン作成
+	skeleton_ = ModelManager::CreateSkeleton(modelHuman_.rootNode);
+
+
+
+	// モデル読み込み
+	modelSphere_ = ModelManager::LoadModelFile("resources/Models/", "sphere.obj", dxBase->GetDevice());
+	modelSphere_.material.textureHandle = whiteGH;
+
+	// Jointの数だけ球体オブジェクト生成
+	for (size_t i = 0; i < skeleton_.joints.size(); ++i) {
+		auto sphere = std::make_unique<Object3D>();
+		sphere->model_ = &modelSphere_;
+		jointSpheres_.push_back(std::move(sphere));
+	}
 }
 
 void TestScene::Finalize() {}
@@ -83,28 +100,16 @@ void TestScene::Update() {
 	DebugCameraUpdate(input);
 	#endif
 
-#pragma region アニメーション適用
-	object_->UpdateMatrix(); 
-
-	// オブジェクトとカメラの行列を取得
-	Matrix worldMatrix = object_->transform_.MakeAffineMatrix();
-	Matrix viewProjectionMatrix = Camera::GetCurrent()->GetViewProjectionMatrix();
-
-	animationTime_ += 1.0f / 60.0f; // 時間を進める
-	animationTime_ = std::fmod(animationTime_, animation_.duration);
-	ModelManager::NodeAnimation& rootNodeAnimation = animation_.nodeAnimations[model_.rootNode.name]; // rootNodeのAnimationを取得
-	Float3 translate = ModelManager::CalculateValue(rootNodeAnimation.translate, animationTime_);     // 指定時刻の値を取得
-	Quaternion rotate = ModelManager::CalculateValue(rootNodeAnimation.rotate, animationTime_);
-	Float3 scale = ModelManager::CalculateValue(rootNodeAnimation.scale, animationTime_);
-	Transform transform = {scale, Float3{rotate.x, rotate.y, rotate.z}, translate}; // 一旦Transformにする
-	Matrix localMatrix = transform.MakeAffineMatrix();
-
-	// RootのMatrixを適用
-	object_->wvpCB_.data_->WVP = localMatrix * worldMatrix * viewProjectionMatrix;
-	object_->wvpCB_.data_->World = localMatrix * worldMatrix;
-#pragma endregion
-
+	// Skybox更新
 	objectSkybox_->UpdateMatrix();
+	
+	// 3Dオブジェクト更新
+	objectHuman_->UpdateMatrix();
+
+	animationTime_ += 1.0f / 60.0f;
+	animationTime_ = std::fmod(animationTime_, animation_.duration);
+	ModelManager::ApplyAnimation(skeleton_, animation_, animationTime_);
+	ModelManager::Update(skeleton_);
 
 	// パーティクルの更新
 	particleManager_->Update();
@@ -130,13 +135,28 @@ void TestScene::Draw() {
 	///	↓ ここから3Dオブジェクトの描画コマンド
 	///
 
-	// オブジェクトの描画
-	object_->Draw();
-
 	// Skyboxの描画（Skybox用PSOに変更）
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkybox());
 	objectSkybox_->Draw();
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
+
+	// Object描画
+	objectHuman_->Draw();
+
+	// Jointデバッグ用球体の描画
+	for (size_t i = 0; i < jointSpheres_.size(); ++i) {
+		const auto& joint = skeleton_.joints[i];
+
+		Matrix jointWorldMatrix = joint.skeletonSpaceMatrix * objectHuman_->transform_.MakeAffineMatrix();
+
+		Matrix sphereScaleMatrix = Matrix::Scaling(jointSpheres_[i]->transform_.scale);
+		Matrix sphereWorldMatrix = sphereScaleMatrix * jointWorldMatrix;
+
+		jointSpheres_[i]->wvpCB_.data_->WVP = sphereWorldMatrix * Camera::GetCurrent()->GetViewProjectionMatrix();
+		jointSpheres_[i]->wvpCB_.data_->World = sphereWorldMatrix;
+		jointSpheres_[i]->Draw();
+	}
+
 
 	// パーティクル描画
 	particleManager_->Draw();
@@ -164,15 +184,6 @@ void TestScene::Draw() {
 	ImGui::DragFloat3("Rotate", &camera->transform.rotate.x, 0.01f);
 
 	ImGui::Checkbox("useDebugCamera", &useDebugCamera);
-
-	ImGui::End();
-
-	// オブジェクト //
-	ImGui::Begin("object");
-
-	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
-	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
-	ImGui::DragFloat3("scale", &object_->transform_.scale.x, 0.01f);
 
 	ImGui::End();
 #endif // _DEBUG
