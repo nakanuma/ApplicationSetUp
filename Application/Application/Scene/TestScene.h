@@ -34,10 +34,13 @@ private:
 	/// ↓ ゲームシーン用
 	///
 
-	// モデルデータ
-	ModelManager::ModelData model_;
-	// 3Dオブジェクト
-	std::unique_ptr<Object3D> object_;
-
+	// ローダー
 	std::unique_ptr<Loader> loader_;
+
+	// 使用するモデル
+	ModelManager::ModelData modelCube_;
+	ModelManager::ModelData modelSphere_;
+
+	// オブジェクトのコンテナ
+	std::vector<std::unique_ptr<Object3D>> objects_;
 };

@@ -25,20 +25,24 @@ public:
 			Float3 scaling;
 		};
 		std::vector<ObjectData> objects; // オブジェクトのリスト
-
-		// 他のデータを追加
-
 	};
 
-public:
 	/// <summary>
 	/// 初期化処理
 	/// </summary>
 	void Initialize();
+
+	/// <summary>
+	/// レベルデータの取得
+	/// </summary>
+	LevelData* GetLevelData() const { return levelData_; }
 
 private:
 	/// <summary>
 	/// 再帰的にオブジェクトを解析
 	/// </summary>
 	void ParseObjectRecursive(LevelData* levelData, const nlohmann::json& objectArray);
+
+private:
+	LevelData* levelData_;
 };

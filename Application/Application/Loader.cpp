@@ -34,11 +34,11 @@ void Loader::Initialize() {
 	assert(name.compare("scene") == 0);
 
 	// レベルデータ格納用インスタンスを生成
-	LevelData* levelData = new LevelData();
+	levelData_ = new LevelData();
 
 	// オブジェクト配列を解析
 	if (deserialized.contains("objects")) {
-		ParseObjectRecursive(levelData, deserialized["objects"]);
+		ParseObjectRecursive(levelData_, deserialized["objects"]);
 	}
 }
 
@@ -66,10 +66,10 @@ void Loader::ParseObjectRecursive(LevelData* levelData, const nlohmann::json& ob
 
 			// トランスフォームのパラメータ読み込み
 			const nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.translation.x = (float)transform["translation"][0];
+			// 平行移動（見た目が一致するようにXとZを反転）
+			objectData.translation.x = (float)transform["translation"][0] * -1.0f;
 			objectData.translation.y = (float)transform["translation"][2];
-			objectData.translation.z = (float)transform["translation"][1];
+			objectData.translation.z = (float)transform["translation"][1] * -1.0f;
 			// 回転角
 			objectData.rotation.x = (float)transform["rotation"][0];
 			objectData.rotation.y = (float)transform["rotation"][2];
