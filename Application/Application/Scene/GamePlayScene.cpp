@@ -4,6 +4,9 @@
 #include "SRVManager.h"
 #include "SpriteCommon.h"
 
+#include <Engine/ParticleEffect/ParticleEffectManager.h>
+#include <Particles/EnemyDeathParticle/EnemyDeathParticle.h>
+
 void GamePlayScene::Initialize()
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
@@ -47,13 +50,14 @@ void GamePlayScene::Initialize()
 	object_->transform_.rotate = {0.0f, 3.14f, 0.0f};
 
 
-
+	
+	// パーティクル生成と登録
 	uint32_t textureParticle = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
 	modelParticle_ = ModelManager::LoadModelFile("resources/Models", "cube.obj", dxBase->GetDevice());
 	modelParticle_.material.textureHandle = textureParticle;
 
-	enemyDeadParticle_ = std::make_unique<EnemyDeadParticle>();
-	enemyDeadParticle_->Initialize(modelParticle_);
+	auto enemyDeathParticle = std::make_unique<EnemyDeathParticle>(modelParticle_);
+	ParticleEffectManager::GetInstance()->Register("EnemyDeath", std::move(enemyDeathParticle));
 }
 
 void GamePlayScene::Finalize()
@@ -63,7 +67,7 @@ void GamePlayScene::Finalize()
 void GamePlayScene::Update() { 
 	object_->UpdateMatrix();
 
-	enemyDeadParticle_->Update();
+	ParticleEffectManager::GetInstance()->Update(kDeltaTime);
 }
 
 void GamePlayScene::Draw()
@@ -90,7 +94,7 @@ void GamePlayScene::Draw()
 	// オブジェクトの描画
 	object_->Draw();
 
-	enemyDeadParticle_->Draw();
+	ParticleEffectManager::GetInstance()->Draw();
 
 	///
 	///	↑ ここまで3Dオブジェクトの描画コマンド
@@ -120,7 +124,7 @@ void GamePlayScene::Draw()
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 
 	if (ImGui::Button("Emit")) {
-		enemyDeadParticle_->Emit({0.0f, 5.0f, 0.0f});
+		ParticleEffectManager::GetInstance()->Emit("EnemyDeath", {0.0f, 5.0f, 0.0f}, 10);
 	}
 
 	ImGui::End();

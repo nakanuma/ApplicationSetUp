@@ -10,9 +10,6 @@
 #include "Input.h"
 #include "LightManager.h"
 
-// Application
-#include <Particles/EnemyDeadParticle/EnemyDeadParticle.h>
-
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
 {
@@ -36,6 +33,8 @@ private:
 	Input* input = nullptr;
 	LightManager* lightManager = nullptr;
 
+	const float kDeltaTime = 1.0f / 60.0f;
+
 	///
 	/// ↓ ゲームシーン用
 	///
@@ -50,8 +49,7 @@ private:
 	uint32_t dummy2_;
 
 
-
-	std::unique_ptr<EnemyDeadParticle> enemyDeadParticle_;
+	// パーティクル用モデルデータ
 	ModelManager::ModelData modelParticle_;
 };
 

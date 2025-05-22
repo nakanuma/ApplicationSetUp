@@ -10,8 +10,6 @@
 #include "SoundManager.h"
 #include "Input.h"
 #include "LightManager.h"
-#include "ParticleManager.h"
-#include "ParticleEmitter.h"
 
 class TestScene : public BaseScene {
 public:
@@ -37,7 +35,6 @@ private:
 	std::unique_ptr<SoundManager> soundManager = nullptr;
 	Input* input = nullptr;
 	LightManager* lightManager = nullptr;
-	std::unique_ptr<ParticleManager> particleManager_ = nullptr;
 
 	///
 	/// ↓ ゲームシーン用

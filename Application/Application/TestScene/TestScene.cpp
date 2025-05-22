@@ -36,10 +36,6 @@ void TestScene::Initialize() {
 	lightManager = LightManager::GetInstance();
 	lightManager->Initialize();
 
-	// ParticleManagerの初期化
-	particleManager_ = std::make_unique<ParticleManager>();
-	particleManager_->Initialize(dxBase, SRVManager::GetInstance());
-
 	///
 	///	↓ ゲームシーン用
 	///
@@ -103,9 +99,6 @@ void TestScene::Update() {
 	ModelManager::Update(skeleton_);
 	// SkeletonSpaceの情報を基に、SkinClusterのMatrixPaletteを更新
 	ModelManager::Update(skinCluster_, skeleton_);
-
-	// パーティクルの更新
-	particleManager_->Update();
 }
 
 void TestScene::Draw() {
@@ -137,9 +130,6 @@ void TestScene::Draw() {
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineStateSkinning());
 	objectHuman_->Draw(skinCluster_);
 	dxBase->GetCommandList()->SetPipelineState(dxBase->GetPipelineState());
-
-	// パーティクル描画
-	particleManager_->Draw();
 
 	///
 	///	↑ ここまで3Dオブジェクトの描画コマンド
