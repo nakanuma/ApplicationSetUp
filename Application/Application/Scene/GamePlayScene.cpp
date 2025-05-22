@@ -45,6 +45,15 @@ void GamePlayScene::Initialize()
 	object_ = std::make_unique<Object3D>();
 	object_->model_ = &model_;
 	object_->transform_.rotate = {0.0f, 3.14f, 0.0f};
+
+
+
+	uint32_t textureParticle = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
+	modelParticle_ = ModelManager::LoadModelFile("resources/Models", "cube.obj", dxBase->GetDevice());
+	modelParticle_.material.textureHandle = textureParticle;
+
+	enemyDeadParticle_ = std::make_unique<EnemyDeadParticle>();
+	enemyDeadParticle_->Initialize(modelParticle_);
 }
 
 void GamePlayScene::Finalize()
@@ -53,6 +62,8 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update() { 
 	object_->UpdateMatrix();
+
+	enemyDeadParticle_->Update();
 }
 
 void GamePlayScene::Draw()
@@ -79,6 +90,8 @@ void GamePlayScene::Draw()
 	// オブジェクトの描画
 	object_->Draw();
 
+	enemyDeadParticle_->Draw();
+
 	///
 	///	↑ ここまで3Dオブジェクトの描画コマンド
 	/// 
@@ -101,8 +114,14 @@ void GamePlayScene::Draw()
 
 	ImGui::Begin("window");
 
+	ImGui::Text("fps : %.2f", ImGui::GetIO().Framerate);
+
 	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
+
+	if (ImGui::Button("Emit")) {
+		enemyDeadParticle_->Emit({0.0f, 5.0f, 0.0f});
+	}
 
 	ImGui::End();
 

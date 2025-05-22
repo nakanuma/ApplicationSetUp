@@ -10,6 +10,9 @@
 #include "Input.h"
 #include "LightManager.h"
 
+// Application
+#include <Particles/EnemyDeadParticle/EnemyDeadParticle.h>
+
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
 {
@@ -45,5 +48,10 @@ private:
 	uint32_t dummy_;
 
 	uint32_t dummy2_;
+
+
+
+	std::unique_ptr<EnemyDeadParticle> enemyDeadParticle_;
+	ModelManager::ModelData modelParticle_;
 };
 
