@@ -50,6 +50,9 @@ private:
 
 
 	// パーティクル用モデルデータ
-	ModelManager::ModelData modelParticle_;
+	ModelManager::ModelData modelTestParticle_;
+
+	ModelManager::ModelData modelCircleParticle_; // CircleParticle用
+	ModelManager::ModelData modelFlareParticle_; // FlareParticle用
 };
 

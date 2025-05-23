@@ -9,7 +9,6 @@ struct TestParticleData
 {
 	Transform transform;
 	Float3 velocity;
-	Float3 rotationSpeed;
 	Float4 color;
 	float lifeTime;
 	float currentTime;

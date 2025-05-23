@@ -33,6 +33,12 @@
     <ClCompile Include="Particles\TestParticle\TestParticle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Particles\CircleParticle\CircleParticle.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Particles\FlareParticle\FlareParticle.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\GamePlayScene.h">
@@ -45,6 +51,12 @@
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="Particles\TestParticle\TestParticle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Particles\CircleParticle\CircleParticle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Particles\FlareParticle\FlareParticle.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

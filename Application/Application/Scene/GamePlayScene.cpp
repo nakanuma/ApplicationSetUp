@@ -5,7 +5,10 @@
 #include "SpriteCommon.h"
 
 #include <Engine/ParticleEffect/ParticleEffectManager.h>
+
 #include <Particles/TestParticle/TestParticle.h>
+#include <Particles/CircleParticle/CircleParticle.h>
+#include <Particles/FlareParticle/FlareParticle.h>
 
 void GamePlayScene::Initialize()
 {
@@ -49,15 +52,34 @@ void GamePlayScene::Initialize()
 	object_->model_ = &model_;
 	object_->transform_.rotate = {0.0f, 3.14f, 0.0f};
 
-
+	///
+	///	パーティクル生成
+	/// 
 	
 	// パーティクル生成と登録
 	uint32_t textureParticle = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
-	modelParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	modelParticle_.material.textureHandle = textureParticle;
+	modelTestParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
+	modelTestParticle_.material.textureHandle = textureParticle;
 
-	auto enemyDeathParticle = std::make_unique<TestParticle>(modelParticle_);
-	ParticleEffectManager::GetInstance()->Register("EnemyDeath", std::move(enemyDeathParticle));
+	auto testParticle = std::make_unique<TestParticle>(modelTestParticle_);
+	ParticleEffectManager::GetInstance()->Register("Test", std::move(testParticle));
+
+
+	// CircleParticle
+	uint32_t textureCircleParticle = TextureManager::Load("resources/Images/EffectTexture/circle.png", dxBase->GetDevice());
+	modelCircleParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
+	modelCircleParticle_.material.textureHandle = textureCircleParticle;
+
+	auto circleParticle = std::make_unique<CircleParticle>(modelCircleParticle_);
+	ParticleEffectManager::GetInstance()->Register("Circle", std::move(circleParticle));
+
+	// FlareParticle
+	uint32_t textureFlareParticle = TextureManager::Load("resources/Images/EffectTexture/glow1.png", dxBase->GetDevice());
+	modelFlareParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
+	modelFlareParticle_.material.textureHandle = textureFlareParticle;
+
+	auto flareParticle = std::make_unique<FlareParticle>(modelFlareParticle_);
+	ParticleEffectManager::GetInstance()->Register("Flare", std::move(flareParticle));
 }
 
 void GamePlayScene::Finalize()
@@ -92,7 +114,7 @@ void GamePlayScene::Draw()
 	/// 
 
 	// オブジェクトの描画
-	object_->Draw();
+	/*object_->Draw();*/
 
 	ParticleEffectManager::GetInstance()->Draw();
 
@@ -123,8 +145,18 @@ void GamePlayScene::Draw()
 	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 
-	if (ImGui::Button("Emit")) {
-		ParticleEffectManager::GetInstance()->Emit("EnemyDeath", {0.0f, 5.0f, 0.0f}, 10);
+	const Float3 emitPos = {0.0f, 0.5f, 0.0f};
+
+	if (ImGui::Button("Emit Test")) {
+		ParticleEffectManager::GetInstance()->Emit("Test", emitPos, 10); // 10個生成
+	}
+
+	if (ImGui::Button("Emit Circle")) {
+		ParticleEffectManager::GetInstance()->Emit("Circle", emitPos, 1); // 1個生成
+	}
+
+	if (ImGui::Button("Emit Flare")) {
+		ParticleEffectManager::GetInstance()->Emit("Flare", emitPos, 2); // 2個生成
 	}
 
 	ImGui::End();

@@ -1,7 +1,7 @@
 #include "TestParticle.h"
 
 // C++
-#include < random>
+#include <random>
 
 TestParticle::TestParticle(ModelManager::ModelData& model) {
 	object_.model_ = &model;
@@ -11,7 +11,7 @@ TestParticle::TestParticle(ModelManager::ModelData& model) {
 	// ビルボード適用設定
 	isBillboard_ = {true, true, true};
 	// ブレンドモード設定
-	blendMode_ = BlendMode::Subtract;
+	blendMode_ = BlendMode::Normal;
 }
 
 TestParticleData TestParticle::CreateParticle(const Float3& pos) { 
@@ -23,7 +23,6 @@ TestParticleData TestParticle::CreateParticle(const Float3& pos) {
 	p.transform.rotate = { 0.0f, 0.0f, 0.0f };
 	p.transform.scale = { 1.0f, 1.0f, 1.0f };
 	p.velocity = { 0.0f, 1.0f, 0.0f };
-	p.rotationSpeed = { 0.0f, 0.0f, 0.0f };
 	p.color = { 1.0f, 0.5f, 0.2f, 1.0f };
 	p.lifeTime = 2.0f;
 	p.currentTime = 0.0f;
