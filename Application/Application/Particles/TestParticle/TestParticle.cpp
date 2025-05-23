@@ -10,6 +10,8 @@ TestParticle::TestParticle(ModelManager::ModelData& model) {
 
 	// ビルボード適用設定
 	isBillboard_ = {true, true, true};
+	// ブレンドモード設定
+	blendMode_ = BlendMode::Subtract;
 }
 
 TestParticleData TestParticle::CreateParticle(const Float3& pos) { 
