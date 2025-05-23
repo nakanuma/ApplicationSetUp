@@ -30,7 +30,7 @@
     <ClCompile Include="TestScene\TestScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Particles\EnemyDeathParticle\EnemyDeathParticle.cpp">
+    <ClCompile Include="Particles\TestParticle\TestParticle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,7 +44,7 @@
     <ClInclude Include="TestScene\TestScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Particles\EnemyDeathParticle\EnemyDeathParticle.h">
+    <ClInclude Include="Particles\TestParticle\TestParticle.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

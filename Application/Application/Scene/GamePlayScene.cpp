@@ -5,7 +5,7 @@
 #include "SpriteCommon.h"
 
 #include <Engine/ParticleEffect/ParticleEffectManager.h>
-#include <Particles/EnemyDeathParticle/EnemyDeathParticle.h>
+#include <Particles/TestParticle/TestParticle.h>
 
 void GamePlayScene::Initialize()
 {
@@ -53,10 +53,10 @@ void GamePlayScene::Initialize()
 	
 	// パーティクル生成と登録
 	uint32_t textureParticle = TextureManager::Load("resources/Images/white.png", dxBase->GetDevice());
-	modelParticle_ = ModelManager::LoadModelFile("resources/Models", "cube.obj", dxBase->GetDevice());
+	modelParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
 	modelParticle_.material.textureHandle = textureParticle;
 
-	auto enemyDeathParticle = std::make_unique<EnemyDeathParticle>(modelParticle_);
+	auto enemyDeathParticle = std::make_unique<TestParticle>(modelParticle_);
 	ParticleEffectManager::GetInstance()->Register("EnemyDeath", std::move(enemyDeathParticle));
 }
 

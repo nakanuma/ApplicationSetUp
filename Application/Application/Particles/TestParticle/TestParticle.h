@@ -5,7 +5,7 @@
 #include <Engine/ParticleEffect/BaseParticleEffect.h>
 #include <Engine/Model/ModelManager.h>
 
-struct EnemyDeathParticleData 
+struct TestParticleData 
 {
 	Transform transform;
 	Float3 velocity;
@@ -14,22 +14,23 @@ struct EnemyDeathParticleData
 	float lifeTime;
 	float currentTime;
 
-	// その他パラメーター追加
+	// その他固有パラメーター追加
+
 };
 
-class EnemyDeathParticle : public BaseParticleEffect<EnemyDeathParticleData>
+class TestParticle : public BaseParticleEffect<TestParticleData>
 {
 public:
-	EnemyDeathParticle(ModelManager::ModelData& model);
+	TestParticle(ModelManager::ModelData& model);
 
 protected:
 	/// <summary>
 	/// パーティクル固有の生成処理
 	/// </summary>
-	EnemyDeathParticleData CreateParticle(const Float3& pos) override;
+	TestParticleData CreateParticle(const Float3& pos) override;
 
 	/// <summary>
 	/// パーティクル固有の更新処理
 	/// </summary>
-	void UpdateParticle(EnemyDeathParticleData& p, float dt) override;
+	void UpdateParticle(TestParticleData& p, float dt) override;
 };
