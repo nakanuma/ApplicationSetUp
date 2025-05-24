@@ -9,6 +9,9 @@
 #include <Particles/TestParticle/TestParticle.h>
 #include <Particles/CircleParticle/CircleParticle.h>
 #include <Particles/FlareParticle/FlareParticle.h>
+#include <Particles/FlashParticle/FlashParticle.h>
+#include <Particles/SparkAParticle/SparkAParticle.h>
+#include <Particles/SparkBParticle/SparkBParticle.h>
 
 void GamePlayScene::Initialize()
 {
@@ -80,6 +83,30 @@ void GamePlayScene::Initialize()
 
 	auto flareParticle = std::make_unique<FlareParticle>(modelFlareParticle_);
 	ParticleEffectManager::GetInstance()->Register("Flare", std::move(flareParticle));
+
+	// FlashParticle
+	uint32_t textureFlashParticle = TextureManager::Load("resources/Images/EffectTexture/muzzle.png", dxBase->GetDevice());
+	modelFlashParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
+	modelFlashParticle_.material.textureHandle = textureFlashParticle;
+
+	auto flashParticle = std::make_unique<FlashParticle>(modelFlashParticle_);
+	ParticleEffectManager::GetInstance()->Register("Flash", std::move(flashParticle));
+
+	// SparkAParticle
+	uint32_t textureSparkAPartile = TextureManager::Load("resources/Images/EffectTexture/glow2.png", dxBase->GetDevice());
+	modelSparkAParicle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
+	modelSparkAParicle_.material.textureHandle = textureSparkAPartile;
+
+	auto sparkAParticle = std::make_unique<SparkAParticle>(modelSparkAParicle_);
+	ParticleEffectManager::GetInstance()->Register("SparkA", std::move(sparkAParticle));
+
+	// SparkBParticle
+	uint32_t textureSparkBPartile = TextureManager::Load("resources/Images/EffectTexture/glow1.png", dxBase->GetDevice());
+	modelSparkBParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
+	modelSparkBParticle_.material.textureHandle = textureSparkBPartile;
+
+	auto sparkBParticle = std::make_unique<SparkBParticle>(modelSparkBParticle_);
+	ParticleEffectManager::GetInstance()->Register("SparkB", std::move(sparkBParticle));
 }
 
 void GamePlayScene::Finalize()
@@ -148,15 +175,21 @@ void GamePlayScene::Draw()
 	const Float3 emitPos = {0.0f, 0.5f, 0.0f};
 
 	if (ImGui::Button("Emit Test")) {
-		ParticleEffectManager::GetInstance()->Emit("Test", emitPos, 10); // 10個生成
+		ParticleEffectManager::GetInstance()->Emit("SparkB", emitPos, 15); // 15個生成
 	}
 
-	if (ImGui::Button("Emit Circle")) {
+
+	if (ImGui::Button("Emit All")) {
+		// 円
 		ParticleEffectManager::GetInstance()->Emit("Circle", emitPos, 1); // 1個生成
-	}
-
-	if (ImGui::Button("Emit Flare")) {
+		// クロス
 		ParticleEffectManager::GetInstance()->Emit("Flare", emitPos, 2); // 2個生成
+		// 放射
+		ParticleEffectManager::GetInstance()->Emit("Flash", emitPos, 10); // 10個生成
+		// スパークA
+		ParticleEffectManager::GetInstance()->Emit("SparkA", emitPos, 15); // 15個生成
+		// スパークB
+		ParticleEffectManager::GetInstance()->Emit("SparkB", emitPos, 15); // 15個生成
 	}
 
 	ImGui::End();

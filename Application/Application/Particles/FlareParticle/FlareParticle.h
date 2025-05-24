@@ -13,6 +13,8 @@ struct FlareParticleData {
 	float currentTime;
 
 	// その他固有パラメーター追加
+	Float3 initScale;
+	bool isUpdate;
 };
 
 class FlareParticle : public BaseParticleEffect<FlareParticleData> {
@@ -23,4 +25,7 @@ protected:
 	FlareParticleData CreateParticle(const Float3& pos) override;
 
 	void UpdateParticle(FlareParticleData& p, float dt) override;
+
+private:
+	bool isUpdate_;
 };

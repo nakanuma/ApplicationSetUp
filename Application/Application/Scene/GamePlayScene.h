@@ -54,5 +54,8 @@ private:
 
 	ModelManager::ModelData modelCircleParticle_; // CircleParticle用
 	ModelManager::ModelData modelFlareParticle_; // FlareParticle用
+	ModelManager::ModelData modelFlashParticle_; // FlashParticle用
+	ModelManager::ModelData modelSparkAParicle_; // SparkAParticle用
+	ModelManager::ModelData modelSparkBParticle_; // SparkBParticle用
 };
 

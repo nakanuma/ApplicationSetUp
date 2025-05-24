@@ -19,19 +19,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Particles\FlashParticle\FlashParticle.cpp" />
     <ClCompile Include="Particles\FlareParticle\FlareParticle.cpp" />
     <ClCompile Include="Particles\CircleParticle\CircleParticle.cpp" />
     <ClCompile Include="Particles\TestParticle\TestParticle.cpp" />
     <ClCompile Include="Scene\GamePlayScene.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
+    <ClCompile Include="Particles\SparkAParticle\SparkAParticle.cpp" />
+    <ClCompile Include="Particles\SparkBParticle\SparkBParticle.cpp" />
     <ClCompile Include="TestScene\TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Particles\FlashParticle\FlashParticle.h" />
     <ClInclude Include="Particles\FlareParticle\FlareParticle.h" />
     <ClInclude Include="Particles\CircleParticle\CircleParticle.h" />
     <ClInclude Include="Particles\TestParticle\TestParticle.h" />
     <ClInclude Include="Scene\GamePlayScene.h" />
     <ClInclude Include="Scene\TitleScene.h" />
+    <ClInclude Include="Particles\SparkAParticle\SparkAParticle.h" />
+    <ClInclude Include="Particles\SparkBParticle\SparkBParticle.h" />
     <ClInclude Include="TestScene\TestScene.h" />
   </ItemGroup>
   <ItemGroup>

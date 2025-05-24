@@ -13,6 +13,8 @@ struct CircleParticleData {
 	float currentTime;
 
 	// その他固有パラメーター追加
+	Float3 initScale;
+	bool isUpdate;
 };
 
 class CircleParticle : public BaseParticleEffect<CircleParticleData> 

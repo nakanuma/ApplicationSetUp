@@ -4,6 +4,9 @@
 #include <random>
 #include <numbers>
 
+// Engine
+#include <Engine/Math/Easing.h>
+
 FlareParticle::FlareParticle(ModelManager::ModelData& model) 
 {
 	object_.model_ = &model;
@@ -24,17 +27,24 @@ FlareParticleData FlareParticle::CreateParticle(const Float3& pos)
 	FlareParticleData p;
 	p.transform.translate = pos;
 	p.transform.rotate = {rand(rng), 0.0f, 0.0f};
-	p.transform.scale = {5.0f, 0.2f, 0.2f};
+	p.transform.scale = {2.0f, 0.2f, 0.2f};
 	p.velocity = {0.0f, 0.0f, 0.0f};
-	p.color = {1.0f, 1.0f, 1.0f, 1.0f};
-	p.lifeTime = 1.0f;
+	p.color = {1.0f, 0.5f, 0.0f, 1.0f};
+	p.lifeTime = 0.1f;
 	p.currentTime = 0.0f;
+	p.initScale = p.transform.scale;
+	p.isUpdate = false;
 
 	return p;
 }
 
 void FlareParticle::UpdateParticle(FlareParticleData& p, float dt) 
 {
-	// XÇÃÇ›ägëÂ
-	/*p.transform.scale.x *= 1.05f;*/
+	if (!p.isUpdate) {
+		// scale.xÇëùâ¡Åiâ°Ç…à¯Ç´êLÇŒÇ∑Åj
+		SimpleEasing::Animate(p.transform.scale.x, p.initScale.x, p.initScale.x * 3.0f, Easing::EaseOutExpo, p.lifeTime);
+		// scale.yÇå∏è≠ÅiècÇ…í◊Ç∑Åj
+		SimpleEasing::Animate(p.transform.scale.y, p.initScale.y, p.initScale.y * 0.8f, Easing::EaseOutExpo, p.lifeTime);
+	}
+	p.isUpdate = true;
 }
