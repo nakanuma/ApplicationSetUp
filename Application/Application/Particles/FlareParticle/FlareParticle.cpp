@@ -30,7 +30,7 @@ FlareParticleData FlareParticle::CreateParticle(const Float3& pos)
 	p.transform.scale = {2.0f, 0.2f, 0.2f};
 	p.velocity = {0.0f, 0.0f, 0.0f};
 	p.color = {1.0f, 0.5f, 0.0f, 1.0f};
-	p.lifeTime = 0.1f;
+	p.lifeTime = 0.15f;
 	p.currentTime = 0.0f;
 	p.initScale = p.transform.scale;
 	p.isUpdate = false;

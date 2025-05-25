@@ -14,7 +14,7 @@ struct SparkAParticleData
 	float currentTime;
 
 	// その他固有パラメーター追加
-
+	bool isUpdate;
 };
 
 class SparkAParticle : public BaseParticleEffect<SparkAParticleData>

@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Effects\HitEffect\HitEffect.cpp" />
+    <ClCompile Include="Particles\DotParticle\DotParticle.cpp" />
     <ClCompile Include="Particles\FlashParticle\FlashParticle.cpp" />
     <ClCompile Include="Particles\FlareParticle\FlareParticle.cpp" />
     <ClCompile Include="Particles\CircleParticle\CircleParticle.cpp" />
@@ -30,6 +32,8 @@
     <ClCompile Include="TestScene\TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Effects\HitEffect\HitEffect.h" />
+    <ClInclude Include="Particles\DotParticle\DotParticle.h" />
     <ClInclude Include="Particles\FlashParticle\FlashParticle.h" />
     <ClInclude Include="Particles\FlareParticle\FlareParticle.h" />
     <ClInclude Include="Particles\CircleParticle\CircleParticle.h" />

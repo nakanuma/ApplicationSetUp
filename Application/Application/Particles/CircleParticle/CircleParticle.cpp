@@ -26,7 +26,7 @@ CircleParticleData CircleParticle::CreateParticle(const Float3& pos)
 	p.transform.scale = {0.5f, 0.5f, 0.5f };
 	p.velocity = {0.0f, 0.0f, 0.0f};
 	p.color = {1.0f, 0.5f, 0.0f, 1.0f};
-	p.lifeTime = 0.1f;
+	p.lifeTime = 0.25f;
 	p.currentTime = 0.0f;
 	p.initScale = p.transform.scale;
 	p.isUpdate = false;
@@ -38,6 +38,8 @@ void CircleParticle::UpdateParticle(CircleParticleData& p, float dt)
 { 
 	if (!p.isUpdate) {
 		SimpleEasing::Animate(p.transform.scale, p.initScale, p.initScale * 3.0f, Easing::EaseOutExpo, p.lifeTime);
+
+		SimpleEasing::Animate(p.color.w, 1.0f, 0.0f, Easing::EaseOutQuad, p.lifeTime);
 	}
 	p.isUpdate = true;
 }

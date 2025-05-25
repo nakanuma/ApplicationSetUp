@@ -7,18 +7,13 @@
 #include <Engine/ParticleEffect/ParticleEffectManager.h>
 
 #include <Particles/TestParticle/TestParticle.h>
-#include <Particles/CircleParticle/CircleParticle.h>
-#include <Particles/FlareParticle/FlareParticle.h>
-#include <Particles/FlashParticle/FlashParticle.h>
-#include <Particles/SparkAParticle/SparkAParticle.h>
-#include <Particles/SparkBParticle/SparkBParticle.h>
 
 void GamePlayScene::Initialize()
 {
 	DirectXBase* dxBase = DirectXBase::GetInstance();
 
 	// カメラのインスタンスを生成
-	camera = std::make_unique<Camera>(Float3{0.0f, 15.0f, -40.0f}, Float3{0.3f, 0.0f, 0.0f}, 0.45f);
+	camera = std::make_unique<Camera>(Float3{0.0f, 0.0f, -35.0f}, Float3{0.0f, 0.0f, 0.0f}, 0.45f);
 	Camera::Set(camera.get()); // 現在のカメラをセット
 
 	// SpriteCommonの生成と初期化
@@ -67,46 +62,12 @@ void GamePlayScene::Initialize()
 	auto testParticle = std::make_unique<TestParticle>(modelTestParticle_);
 	ParticleEffectManager::GetInstance()->Register("Test", std::move(testParticle));
 
-
-	// CircleParticle
-	uint32_t textureCircleParticle = TextureManager::Load("resources/Images/EffectTexture/circle.png", dxBase->GetDevice());
-	modelCircleParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	modelCircleParticle_.material.textureHandle = textureCircleParticle;
-
-	auto circleParticle = std::make_unique<CircleParticle>(modelCircleParticle_);
-	ParticleEffectManager::GetInstance()->Register("Circle", std::move(circleParticle));
-
-	// FlareParticle
-	uint32_t textureFlareParticle = TextureManager::Load("resources/Images/EffectTexture/glow1.png", dxBase->GetDevice());
-	modelFlareParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	modelFlareParticle_.material.textureHandle = textureFlareParticle;
-
-	auto flareParticle = std::make_unique<FlareParticle>(modelFlareParticle_);
-	ParticleEffectManager::GetInstance()->Register("Flare", std::move(flareParticle));
-
-	// FlashParticle
-	uint32_t textureFlashParticle = TextureManager::Load("resources/Images/EffectTexture/muzzle.png", dxBase->GetDevice());
-	modelFlashParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	modelFlashParticle_.material.textureHandle = textureFlashParticle;
-
-	auto flashParticle = std::make_unique<FlashParticle>(modelFlashParticle_);
-	ParticleEffectManager::GetInstance()->Register("Flash", std::move(flashParticle));
-
-	// SparkAParticle
-	uint32_t textureSparkAPartile = TextureManager::Load("resources/Images/EffectTexture/glow2.png", dxBase->GetDevice());
-	modelSparkAParicle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	modelSparkAParicle_.material.textureHandle = textureSparkAPartile;
-
-	auto sparkAParticle = std::make_unique<SparkAParticle>(modelSparkAParicle_);
-	ParticleEffectManager::GetInstance()->Register("SparkA", std::move(sparkAParticle));
-
-	// SparkBParticle
-	uint32_t textureSparkBPartile = TextureManager::Load("resources/Images/EffectTexture/glow1.png", dxBase->GetDevice());
-	modelSparkBParticle_ = ModelManager::LoadModelFile("resources/Models", "plane.obj", dxBase->GetDevice());
-	modelSparkBParticle_.material.textureHandle = textureSparkBPartile;
-
-	auto sparkBParticle = std::make_unique<SparkBParticle>(modelSparkBParticle_);
-	ParticleEffectManager::GetInstance()->Register("SparkB", std::move(sparkBParticle));
+	///
+	///	エフェクト生成
+	/// 
+	
+	hitEffect_ = std::make_unique<HitEffect>();
+	hitEffect_->Initialize();
 }
 
 void GamePlayScene::Finalize()
@@ -117,6 +78,17 @@ void GamePlayScene::Update() {
 	object_->UpdateMatrix();
 
 	ParticleEffectManager::GetInstance()->Update(kDeltaTime);
+
+
+
+	// ヒットエフェクト自動発生
+	static float timer = 0.0f;
+	const float kInterval = 1.0f;
+	timer += kDeltaTime;
+	if (timer > kInterval) {
+		hitEffect_->Emit({0.0f, 0.0f, 0.0f});
+		timer = 0.0f;
+	}
 }
 
 void GamePlayScene::Draw()
@@ -169,27 +141,20 @@ void GamePlayScene::Draw()
 
 	ImGui::Text("fps : %.2f", ImGui::GetIO().Framerate);
 
+	ImGui::DragFloat3("t", &camera->transform.translate.x, 0.1f);
+
 	ImGui::DragFloat3("translation", &object_->transform_.translate.x, 0.01f);
 	ImGui::DragFloat3("rotation", &object_->transform_.rotate.x, 0.01f);
 
-	const Float3 emitPos = {0.0f, 0.5f, 0.0f};
+	const Float3 emitPos = {0.0f, 0.0f, 0.0f};
 
 	if (ImGui::Button("Emit Test")) {
-		ParticleEffectManager::GetInstance()->Emit("SparkB", emitPos, 15); // 15個生成
+		ParticleEffectManager::GetInstance()->Emit("Dot", emitPos, 1); // 1個生成
 	}
 
 
 	if (ImGui::Button("Emit All")) {
-		// 円
-		ParticleEffectManager::GetInstance()->Emit("Circle", emitPos, 1); // 1個生成
-		// クロス
-		ParticleEffectManager::GetInstance()->Emit("Flare", emitPos, 2); // 2個生成
-		// 放射
-		ParticleEffectManager::GetInstance()->Emit("Flash", emitPos, 10); // 10個生成
-		// スパークA
-		ParticleEffectManager::GetInstance()->Emit("SparkA", emitPos, 15); // 15個生成
-		// スパークB
-		ParticleEffectManager::GetInstance()->Emit("SparkB", emitPos, 15); // 15個生成
+		hitEffect_->Emit(emitPos);
 	}
 
 	ImGui::End();

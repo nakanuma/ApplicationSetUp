@@ -21,16 +21,17 @@ SparkAParticleData SparkAParticle::CreateParticle(const Float3& pos) {
 	std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<float> rand(-0.2f, 0.2f);
 
-	std::uniform_real_distribution<float> randLifetime(0.2f, 0.4f);
+	std::uniform_real_distribution<float> randLifetime(0.2f, 0.5f);
 
 	SparkAParticleData p;
 	p.transform.translate = pos;
 	p.transform.rotate = { 0.0f, 0.0f, 0.0f };
 	p.transform.scale = { 1.0f, 1.0f, 1.0f };
-	p.velocity = { rand(rng), rand(rng), rand(rng) };
+	p.velocity = { rand(rng), rand(rng), 0.0f };
 	p.color = { 1.0f, 0.5f, 0.2f, 1.0f };
 	p.lifeTime = randLifetime(rng);
 	p.currentTime = 0.0f;
+	p.isUpdate = false;
 
 	return p;
 }
@@ -39,4 +40,9 @@ void SparkAParticle::UpdateParticle(SparkAParticleData& p, float dt) {
 	float t = std::clamp(p.currentTime / p.lifeTime, 0.0f, 1.0f);
 	Float3 easedMove = p.velocity * (1.0f - t) * 2.0f;
 	p.transform.translate += easedMove;
+
+	if (!p.isUpdate) {
+		SimpleEasing::Animate(p.color.w, 1.0f, 0.0f, Easing::EaseInQuad, p.lifeTime);
+	}
+	p.isUpdate = true;
 }

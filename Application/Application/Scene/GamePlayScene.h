@@ -10,6 +10,8 @@
 #include "Input.h"
 #include "LightManager.h"
 
+#include <Effects/HitEffect/HitEffect.h>
+
 // ゲームプレイシーン
 class GamePlayScene : public BaseScene
 {
@@ -52,10 +54,7 @@ private:
 	// パーティクル用モデルデータ
 	ModelManager::ModelData modelTestParticle_;
 
-	ModelManager::ModelData modelCircleParticle_; // CircleParticle用
-	ModelManager::ModelData modelFlareParticle_; // FlareParticle用
-	ModelManager::ModelData modelFlashParticle_; // FlashParticle用
-	ModelManager::ModelData modelSparkAParicle_; // SparkAParticle用
-	ModelManager::ModelData modelSparkBParticle_; // SparkBParticle用
+	// ヒットエフェクト
+	std::unique_ptr<HitEffect> hitEffect_;
 };
 
